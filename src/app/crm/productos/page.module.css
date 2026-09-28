@@ -1,0 +1,281 @@
+.container {
+  flex: 1;
+  padding: 1rem;
+  background: #f4f4f5; /* Light gray background to contrast with white cards */
+  min-height: 100vh;
+  position: relative;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #18181b;
+  margin: 0;
+}
+
+.productList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-bottom: 5rem; /* space for FAB */
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.productCard {
+  background: #ffffff;
+  border: 1px solid #e4e4e7;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.productInfo {
+  flex: 1;
+}
+
+.productTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #18181b;
+  margin: 0 0 0.4rem 0;
+}
+
+.productDetail {
+  font-size: 0.85rem;
+  color: #52525b;
+  margin: 0 0 0.2rem 0;
+}
+
+.productDetailLight {
+  font-size: 0.8rem;
+  color: #a1a1aa;
+  margin: 0;
+}
+
+.cardActions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.iconBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.iconBtn:hover {
+  background: #f4f4f5;
+}
+
+.editIcon {
+  color: #0ea5e9;
+}
+
+.deleteIcon {
+  color: #ef4444;
+}
+
+/* Floating Action Button */
+.fab {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 56px;
+  height: 56px;
+  background: #000000;
+  color: #ffffff;
+  border: none;
+  border-radius: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  transition: transform 0.2s;
+  z-index: 10;
+}
+
+.fab:hover {
+  transform: scale(1.05);
+}
+
+/* Modal Styles */
+.modalOverlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: #f8f9fa; /* In the screenshot, it looks like a full screen or white background, but let's make it an overlay over the layout */
+  z-index: 100;
+  overflow-y: auto;
+  display: flex;
+  justify-content: center;
+}
+
+.modalContent {
+  background: #ffffff;
+  width: 100%;
+  max-width: 600px;
+  min-height: 100vh;
+  box-shadow: 0 0 20px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #f4f4f5;
+  position: relative;
+  justify-content: center;
+}
+
+.modalHeader h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.closeBtn {
+  position: absolute;
+  left: 1.5rem;
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  cursor: pointer;
+  color: #18181b;
+  display: flex;
+  align-items: center;
+  padding: 0;
+}
+
+.modalBody {
+  padding: 1.5rem;
+  flex: 1;
+}
+
+.sectionTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #18181b;
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.addDiscountBtn {
+  background: none;
+  border: none;
+  color: #18181b;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.inputGroup {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.floatingLabel {
+  position: absolute;
+  top: -8px;
+  left: 12px;
+  background: #ffffff;
+  padding: 0 4px;
+  font-size: 0.75rem;
+  color: #71717a;
+  font-weight: 500;
+}
+
+.input {
+  width: 100%;
+  padding: 1rem;
+  border: 1px solid #d4d4d8;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  color: #18181b;
+  background: #ffffff;
+  transition: border-color 0.2s;
+}
+
+.input:focus {
+  border-color: #0ea5e9;
+  outline: none;
+}
+
+.emptyDiscounts {
+  color: #a1a1aa;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+  line-height: 1.4;
+}
+
+.discountRow {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+}
+
+.discountInputWrapper {
+  flex: 1;
+  position: relative;
+}
+
+.removeDiscountBtn {
+  background: none;
+  border: none;
+  color: #ef4444;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.saveBtn {
+  width: 100%;
+  background: #000000;
+  color: #ffffff;
+  border: none;
+  padding: 1.25rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  margin-top: 2rem;
+}
+
+.saveBtn:hover {
+  opacity: 0.85;
+}
+
+.saveBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
