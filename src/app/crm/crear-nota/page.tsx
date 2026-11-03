@@ -218,7 +218,7 @@ export function CrearNotaPage() {
   };
 
   return (
-    <div style={{ flex: 1, padding: '1rem', background: '#f8f9fa', overflowY: 'auto' }}>
+    <div style={{ flex: 1, padding: '1.5rem 2rem', background: '#0b0b0b', overflowY: 'auto' }}>
       <div className={styles.formContainer}>
 
         <div className={styles.header}>
@@ -235,13 +235,13 @@ export function CrearNotaPage() {
 
         <div className={styles.dateBox}>
           <div className={styles.dateBoxLeft}>
-            <Calendar size={24} color="#0ea5e9" />
+            <Calendar size={24} color="#eedfc6" />
             <div>
               <p className={styles.dateTitle}>Fecha y Hora de la Nota</p>
               <p className={styles.dateSubtitle}>{formatDisplayDate(fechaNota)}</p>
             </div>
           </div>
-          <label style={{ fontSize: '0.85rem', fontWeight: 600, color: '#0369a1', cursor: 'pointer' }}>
+          <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#eedfc6', cursor: 'pointer' }}>
             Cambiar
             <input
               type="datetime-local"
@@ -267,7 +267,7 @@ export function CrearNotaPage() {
           <div>
             <h3 className={styles.sectionTitle}>
               Productos & Conceptos
-              <button type="button" onClick={() => setIsCatalogOpen(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#0ea5e9' }}>
+              <button type="button" onClick={() => setIsCatalogOpen(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#eedfc6' }}>
                 <Plus size={24} />
               </button>
             </h3>
@@ -311,23 +311,23 @@ export function CrearNotaPage() {
 
           <div>
             <h3 className={styles.sectionTitle}>Resumen & Descuentos</h3>
-            <div className={styles.inputRow}>
-              <div style={{ position: 'relative' }}>
-                <span style={{ position: 'absolute', top: '-8px', left: '12px', background: 'white', padding: '0 4px', fontSize: '0.75rem', color: '#a1a1aa' }}>
-                  Descuento Especial General ($)
-                </span>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#eedfc6', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.4rem' }}>
+                  Descuento Especial ($)
+                </label>
                 <input type="number" min="0" step="0.01" className={styles.input} value={descuentoEspecial} onChange={e => setDescuentoEspecial(e.target.value === '' ? '' : Number(e.target.value))} placeholder="0" />
               </div>
-              <div style={{ position: 'relative' }}>
-                <span style={{ position: 'absolute', top: '-8px', left: '12px', background: 'white', padding: '0 4px', fontSize: '0.75rem', color: '#a1a1aa' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#eedfc6', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.4rem' }}>
                   Costo de Envío ($)
-                </span>
+                </label>
                 <input type="number" min="0" step="0.01" className={styles.input} value={envio} onChange={e => setEnvio(e.target.value === '' ? '' : Number(e.target.value))} placeholder="0" />
               </div>
-              <div style={{ position: 'relative' }}>
-                <span style={{ position: 'absolute', top: '-8px', left: '12px', background: 'white', padding: '0 4px', fontSize: '0.75rem', color: '#a1a1aa' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#eedfc6', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.4rem' }}>
                   Anticipo / Abono ($)
-                </span>
+                </label>
                 <input type="number" min="0" step="0.01" className={styles.input} value={anticipo} onChange={e => setAnticipo(e.target.value === '' ? '' : Number(e.target.value))} placeholder="0" />
               </div>
             </div>
@@ -378,13 +378,60 @@ export function CrearNotaPage() {
 
       {/* Catálogo Modal */}
       {isCatalogOpen && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modalContent} style={{ background: '#f4f4f5' }}>
-            <div className={styles.modalHeader} style={{ background: '#ffffff' }}>
-              <h3>Seleccionar Producto</h3>
-              <button className={styles.closeBtn} onClick={() => setIsCatalogOpen(false)}>×</button>
+        <div className={styles.modalOverlay} onClick={() => setIsCatalogOpen(false)}>
+          <div 
+            className={styles.modalContent} 
+            style={{ 
+              background: '#121212', 
+              maxWidth: '680px', 
+              maxHeight: '88vh', 
+              border: '1px solid rgba(238, 223, 198, 0.25)', 
+              boxShadow: '0 25px 70px rgba(0, 0, 0, 0.95)',
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'hidden'
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div 
+              style={{ 
+                background: '#181818', 
+                borderBottom: '1px solid rgba(255, 255, 255, 0.08)', 
+                padding: '1.25rem 1.5rem', 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center' 
+              }}
+            >
+              <div>
+                <span style={{ display: 'block', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.15em', color: '#a1a1aa', fontWeight: 700 }}>
+                  Catálogo Mayorista
+                </span>
+                <h3 style={{ margin: 0, color: '#eedfc6', fontFamily: 'var(--font-bronco), serif', fontSize: '1.4rem', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+                  Seleccionar Producto
+                </h3>
+              </div>
+              <button 
+                onClick={() => setIsCatalogOpen(false)}
+                style={{ 
+                  background: 'rgba(255, 255, 255, 0.06)', 
+                  border: '1px solid rgba(255, 255, 255, 0.1)', 
+                  color: '#ffffff', 
+                  width: '34px', 
+                  height: '34px', 
+                  borderRadius: '50%', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  cursor: 'pointer', 
+                  fontSize: '1.1rem',
+                  lineHeight: 1
+                }}
+              >
+                ✕
+              </button>
             </div>
-            <div style={{ padding: '0', flex: 1, overflowY: 'auto', position: 'relative' }}>
+            <div style={{ padding: '1rem', flex: 1, overflowY: 'auto', position: 'relative', background: '#0e0e0e' }}>
               <CatalogoManager onSelectProduct={addItemFromCatalog} />
             </div>
           </div>

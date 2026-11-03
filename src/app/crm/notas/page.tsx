@@ -96,29 +96,31 @@ export default function NotasPage() {
 
   if (loading) {
     return (
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8f9fa' }}>
-        <Loader2 size={32} className="animate-spin" color="#18181b" />
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#0b0b0b', gap: '1rem' }}>
+        <Loader2 size={36} className="animate-spin" color="#eedfc6" />
+        <span className="font-bronco" style={{ color: '#eedfc6', letterSpacing: '0.1em' }}>Cargando Notas...</span>
       </div>
     );
   }
 
   return (
-    <div style={{ flex: 1, padding: '1.5rem 2rem', background: '#f8f9fa', display: 'flex', flexDirection: 'column', gap: '1.5rem', overflowY: 'auto' }}>
+    <div style={{ flex: 1, padding: '1.5rem 2rem', background: '#0b0b0b', display: 'flex', flexDirection: 'column', gap: '1.5rem', overflowY: 'auto' }}>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#ffffff', padding: '1.2rem 1.5rem', borderRadius: '12px', border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#141414', padding: '1.2rem 1.5rem', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-          <div style={{ background: '#f4f4f5', padding: '0.6rem', borderRadius: '8px', color: '#18181b' }}>
+          <div style={{ background: 'rgba(238, 223, 198, 0.1)', padding: '0.6rem', borderRadius: '8px', color: '#eedfc6' }}>
             <StickyNote size={20} />
           </div>
           <div>
-            <h2 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 800, color: '#18181b' }}>Bloc de Notas</h2>
-            <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.85rem', color: '#71717a' }}>Apunta ideas, recordatorios y tareas pendientes.</p>
+            <h2 className="font-bronco" style={{ margin: 0, fontSize: '1.6rem', letterSpacing: '0.04em', color: '#ffffff' }}>Bloc de Notas</h2>
+            <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.85rem', color: '#a1a1aa' }}>Apunta ideas, recordatorios y tareas pendientes del taller.</p>
           </div>
         </div>
         
         <button 
           onClick={handleAddNota}
-          style={{ background: '#18181b', color: '#ffffff', border: 'none', padding: '0.6rem 1.2rem', borderRadius: '8px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}
+          className="font-bronco"
+          style={{ background: '#eedfc6', color: '#0b0b0b', border: 'none', padding: '0.7rem 1.3rem', borderRadius: '8px', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', transition: 'all 0.2s', fontSize: '0.95rem', letterSpacing: '0.04em', boxShadow: '0 4px 15px rgba(238, 223, 198, 0.25)' }}
           onMouseOver={e => e.currentTarget.style.transform = 'translateY(-2px)'}
           onMouseOut={e => e.currentTarget.style.transform = 'translateY(0)'}
         >

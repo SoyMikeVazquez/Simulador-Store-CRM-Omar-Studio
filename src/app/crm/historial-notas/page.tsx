@@ -154,16 +154,16 @@ export default function HistorialNotasPage() {
                   <td><strong>#{String(nota.folio).padStart(4, '0')}</strong></td>
                   <td>{nota.es_recibo ? 'Recibo / Finalizada' : 'Presupuesto'}</td>
                   <td>
-                    <div style={{ fontWeight: 600, color: '#18181b' }}>{nota.cliente_nombre}</div>
-                    <div style={{ fontSize: '0.75rem', color: '#71717a' }}>{nota.cliente_telefono}</div>
+                    <div style={{ fontWeight: 600, color: '#ffffff' }}>{nota.cliente_nombre}</div>
+                    <div style={{ fontSize: '0.75rem', color: '#a1a1aa' }}>{nota.cliente_telefono}</div>
                   </td>
-                  <td>
+                  <td style={{ color: '#a1a1aa' }}>
                     {new Intl.DateTimeFormat('es-MX', {
                       day: '2-digit', month: '2-digit', year: 'numeric',
                       hour: '2-digit', minute: '2-digit'
                     }).format(new Date(nota.created_at))}
                   </td>
-                  <td style={{ color: '#d97706', fontWeight: 600 }}>
+                  <td style={{ color: '#eedfc6', fontWeight: 800 }}>
                     ${(nota.total || 0).toFixed(2)}
                   </td>
                   <td>

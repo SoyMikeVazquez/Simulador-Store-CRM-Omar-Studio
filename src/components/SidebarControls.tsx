@@ -623,8 +623,33 @@ export default function SidebarControls({
   return (
     <aside className="controlsPanel">
       <div className="brandHeader">
-        <span className="badge">Cosmética de Lujo</span>
-        <h1 className="title">Omar Labs Studio</h1>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem' }}>
+          <span 
+            className="font-bronco" 
+            style={{ fontSize: '1.35rem', color: '#eedfc6', letterSpacing: '0.04em', lineHeight: 1.1 }}
+          >
+            OMAR LABS STUDIO
+          </span>
+          <a 
+            href="/order" 
+            className="font-bronco"
+            style={{ 
+              fontSize: '0.75rem', 
+              color: '#eedfc6', 
+              textDecoration: 'none', 
+              background: 'rgba(238, 223, 198, 0.1)', 
+              padding: '0.35rem 0.75rem', 
+              borderRadius: '8px', 
+              border: '1px solid rgba(238, 223, 198, 0.3)',
+              letterSpacing: '0.04em',
+              fontWeight: 700,
+              transition: 'all 0.2s'
+            }}
+          >
+            Ir a Tienda ↗
+          </a>
+        </div>
+        <p className="subtitle">Simulador 3D interactivo y personalizador de cosmética y ceras.</p>
       </div>
 
       <div className="section" style={{ borderTop: 'none', paddingTop: 0 }}>
@@ -1231,9 +1256,9 @@ export default function SidebarControls({
                 style={{
                   padding: '0.8rem',
                   borderRadius: '10px',
-                  background: 'linear-gradient(135deg, #d4af37 0%, #aa7c11 100%)',
+                  background: '#eedfc6',
                   border: 'none',
-                  color: '#000000',
+                  color: '#0b0b0b',
                   fontWeight: 800,
                   cursor: isSendingEmail ? 'wait' : 'pointer',
                   display: 'flex',
@@ -1241,7 +1266,7 @@ export default function SidebarControls({
                   justifyContent: 'center',
                   gap: '0.5rem',
                   fontSize: '0.88rem',
-                  boxShadow: '0 4px 15px rgba(212, 175, 55, 0.3)',
+                  boxShadow: '0 4px 15px rgba(238, 223, 198, 0.25)',
                   opacity: isSendingEmail ? 0.7 : 1,
                 }}
               >
@@ -1322,7 +1347,7 @@ export default function SidebarControls({
               <button
                 type="submit"
                 disabled={isSubmittingLead}
-                style={{ marginTop: '0.5rem', padding: '0.8rem', borderRadius: '8px', background: 'linear-gradient(135deg, #d4af37 0%, #aa7c11 100%)', border: 'none', color: '#000000', fontWeight: 800, cursor: isSubmittingLead ? 'wait' : 'pointer', fontSize: '0.95rem', opacity: isSubmittingLead ? 0.7 : 1, transition: 'opacity 0.2s' }}
+                style={{ marginTop: '0.5rem', padding: '0.8rem', borderRadius: '8px', background: '#eedfc6', border: 'none', color: '#0b0b0b', fontWeight: 800, cursor: isSubmittingLead ? 'wait' : 'pointer', fontSize: '0.95rem', opacity: isSubmittingLead ? 0.7 : 1, transition: 'opacity 0.2s', boxShadow: '0 4px 15px rgba(238, 223, 198, 0.25)' }}
               >
                 {isSubmittingLead ? 'Registrando...' : 'Continuar al Simulador'}
               </button>

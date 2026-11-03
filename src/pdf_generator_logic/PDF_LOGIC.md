@@ -94,12 +94,20 @@ Justificados a la derecha debajo de la tabla:
   - Anticipo: $[anticipo]
   - **RESTANTE PENDIENTE:** $[restante] (Total - Anticipo) (Tamaño grande)
 
-### F. Pie de Página (Últimos 135 pts de la hoja, en todas las páginas)
-- **DATOS BANCARIOS (Cinta Gris Oscura)**: Un rectángulo sólido (`#1E1E1E`) con el texto en blanco, tamaño 13 Bold, centrado.
-- **Detalles Bancarios**:
-  - Línea 1: "NOMBRE: OMAR CHAVEZ   |   BANCO: BBVA   |   TEL: 833 453 9727"
-  - Línea 2: "CLABE: 012 180 01536760721 4   |   TARJETA: 4152 3144 0280 6635"
-- **CONDICIONES DE PRODUCCIÓN**: Letra tamaño 7.5, texto centrado:
+### F. Pie de Página (Últimos 150 pts de la hoja, en todas las páginas)
+- **DATOS BANCARIOS (Cinta Gris Oscura)**: Un rectángulo sólido (`#1E1E1E`) con el texto en blanco, tamaño 11 Bold, centrado: `"DATOS BANCARIOS PARA TRANSFERENCIA O DEPÓSITO"`.
+- **Detalles Bancarios en 2 Columnas**:
+  - **Columna 1 (BBVA)**:
+    - Banco: `BBVA`
+    - Titular: `OMAR CHAVEZ` | Tel: `833 453 9727`
+    - CLABE: `012 180 01536760721 4`
+    - Tarjeta: `4152 3144 0280 6635`
+  - **Columna 2 (AFIRME)**:
+    - Banco: `AFIRME`
+    - Titular: `OMAR CHAVEZ`
+    - Cuenta: `852340789`
+    - CLABE: `062580008523407899`
+- **CONDICIONES DE PRODUCCIÓN**: Letra tamaño 6.8, texto centrado:
   _"UNA VEZ CONFIRMADO EL PAGO, EL PEDIDO ENTRARÁ A PROCESO DE MAQUILA. EL TIEMPO ESTIMADO DE PRODUCCIÓN ES DE 8 DÍAS HÁBILES. EL TIEMPO DE ENVÍO NO ESTÁ INCLUIDO EN ESTE PLAZO. AL SER UN PRODUCTO PERSONALIZADO/MAQUILADO, NO SE ACEPTAN CAMBIOS NI DEVOLUCIONES UNA VEZ INICIADO EL PROCESO."_
 
 ## 4. Recomendación de Implementación (Web)

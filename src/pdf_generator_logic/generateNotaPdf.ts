@@ -255,32 +255,71 @@ export const generateNotaPdf = async (nota: NotaVentaInfo) => {
     }
 
     // 7. Pie de Página y Datos Bancarios (Todas las páginas)
-    let footerY = pageHeight - 135;
+    const footerY = pageHeight - 150;
     
-    // Rectángulo gris oscuro
+    // Rectángulo gris oscuro para el encabezado
     doc.setFillColor(30, 30, 30);
-    doc.rect(marginX, footerY, pageWidth - (marginX * 2), 22, 'F');
+    doc.rect(marginX, footerY, pageWidth - (marginX * 2), 20, 'F');
     
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(13);
-    doc.setTextColor(255, 255, 255);
-    doc.text('DATOS BANCARIOS', pageWidth / 2, footerY + 16, { align: 'center' });
-    
-    footerY += 40;
-    doc.setTextColor(0, 0, 0);
     doc.setFontSize(11);
-    doc.text('NOMBRE: OMAR CHAVEZ   |   BANCO: BBVA   |   TEL: 833 453 9727', pageWidth / 2, footerY, { align: 'center' });
-    footerY += 16;
-    doc.text('CLABE: 012 180 01536760721 4   |   TARJETA: 4152 3144 0280 6635', pageWidth / 2, footerY, { align: 'center' });
+    doc.setTextColor(255, 255, 255);
+    doc.text('DATOS BANCARIOS PARA TRANSFERENCIA O DEPÓSITO', pageWidth / 2, footerY + 14, { align: 'center' });
+    
+    // Caja contenedora de las 2 cuentas bancarias
+    const boxY = footerY + 20;
+    const boxHeight = 58;
+    doc.setFillColor(248, 248, 248);
+    doc.rect(marginX, boxY, pageWidth - (marginX * 2), boxHeight, 'F');
+    doc.setDrawColor(215, 215, 215);
+    doc.setLineWidth(0.75);
+    doc.rect(marginX, boxY, pageWidth - (marginX * 2), boxHeight, 'D');
 
-    footerY += 30;
+    // Línea divisoria vertical entre BBVA y AFIRME
+    doc.line(pageWidth / 2, boxY + 6, pageWidth / 2, boxY + boxHeight - 6);
+
+    // --- Columna 1: BBVA ---
+    const col1X = marginX + 16;
+    let tY1 = boxY + 14;
+    doc.setTextColor(0, 0, 0);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(9.5);
+    doc.text('BANCO: BBVA', col1X, tY1);
+    
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(7.5);
+    doc.setFontSize(8);
+    tY1 += 12;
+    doc.text('TITULAR: OMAR CHAVEZ   |   TEL: 833 453 9727', col1X, tY1);
+    tY1 += 11;
+    doc.text('CLABE: 012 180 01536760721 4', col1X, tY1);
+    tY1 += 11;
+    doc.text('TARJETA: 4152 3144 0280 6635', col1X, tY1);
+
+    // --- Columna 2: BANCO AFIRME ---
+    const col2X = (pageWidth / 2) + 16;
+    let tY2 = boxY + 14;
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(9.5);
+    doc.text('BANCO: AFIRME', col2X, tY2);
+    
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    tY2 += 12;
+    doc.text('TITULAR: OMAR CHAVEZ', col2X, tY2);
+    tY2 += 11;
+    doc.text('CUENTA: 852340789', col2X, tY2);
+    tY2 += 11;
+    doc.text('CLABE: 062580008523407899', col2X, tY2);
+
+    // Condiciones de producción
+    const condY = boxY + boxHeight + 14;
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(6.8);
+    doc.setTextColor(90, 90, 90);
     const condText = "UNA VEZ CONFIRMADO EL PAGO, EL PEDIDO ENTRARÁ A PROCESO DE MAQUILA. EL TIEMPO ESTIMADO DE PRODUCCIÓN ES DE 8 DÍAS HÁBILES. EL TIEMPO DE ENVÍO NO ESTÁ INCLUIDO EN ESTE PLAZO. AL SER UN PRODUCTO PERSONALIZADO/MAQUILADO, NO SE ACEPTAN CAMBIOS NI DEVOLUCIONES UNA VEZ INICIADO EL PROCESO.";
     
-    // Dividir en lineas si es necesario (splitTextToSize)
     const condLines = doc.splitTextToSize(condText, pageWidth - (marginX * 2));
-    doc.text(condLines, pageWidth / 2, footerY, { align: 'center' });
+    doc.text(condLines, pageWidth / 2, condY, { align: 'center' });
   }
 
   // Guardar PDF

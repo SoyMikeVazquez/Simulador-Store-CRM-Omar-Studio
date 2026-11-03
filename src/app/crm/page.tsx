@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
-import { LogOut, Users, ShoppingCart, Package, Truck, Search, Loader2, RefreshCw, X, FileText, MapPin, Phone, Mail, User, Calendar, Filter } from 'lucide-react';
+import { Loader2, RefreshCw, X } from 'lucide-react';
 
 interface Articulo {
   cantidad: number;
@@ -115,9 +115,22 @@ export default function CrmPage() {
 
   // Inicialización de datos (protegido por CrmLayout)
   useEffect(() => {
-    fetchPedidos().finally(() => {
-      setLoading(false);
-    });
+    let isMounted = true;
+    const safetyTimer = setTimeout(() => {
+      if (isMounted) setLoading(false);
+    }, 2500);
+
+    fetchPedidos()
+      .catch((err) => console.error("Error cargando pedidos:", err))
+      .finally(() => {
+        clearTimeout(safetyTimer);
+        if (isMounted) setLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+      clearTimeout(safetyTimer);
+    };
   }, []);
 
   // Drag and Drop States & Handlers
@@ -206,8 +219,9 @@ export default function CrmPage() {
 
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8f9fa', color: '#18181b' }}>
-        <Loader2 size={32} className="animate-spin" />
+      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#0b0b0b', color: '#eedfc6', gap: '1rem' }}>
+        <Loader2 size={36} className="animate-spin" color="#eedfc6" />
+        <span className="font-bronco" style={{ letterSpacing: '0.1em' }}>Cargando Tablero CRM...</span>
       </div>
     );
   }
@@ -290,13 +304,12 @@ export default function CrmPage() {
     }
   };
 
-  const ColumnHeader = ({ title, count, icon, color }: { title: string, count: number, icon: React.ReactNode, color: string }) => (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', background: '#ffffff', borderBottom: `2px solid ${color}`, borderRadius: '8px 8px 0 0' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#18181b', fontWeight: 600, fontSize: '0.9rem' }}>
-        {icon}
+  const ColumnHeader = ({ title, count }: { title: string, count: number }) => (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.1rem 1.25rem', background: '#141414', borderBottom: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px 10px 0 0' }}>
+      <span className="font-bronco" style={{ color: '#eedfc6', letterSpacing: '0.05em', fontSize: '1rem', textTransform: 'uppercase' }}>
         {title}
-      </div>
-      <span style={{ background: 'rgba(0,0,0,0.05)', padding: '0.2rem 0.6rem', borderRadius: '12px', fontSize: '0.8rem', color: '#52525b' }}>
+      </span>
+      <span style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', padding: '0.2rem 0.6rem', borderRadius: '12px', fontSize: '0.75rem', color: '#a1a1aa', fontWeight: 600 }}>
         {count}
       </span>
     </div>
@@ -312,43 +325,49 @@ export default function CrmPage() {
         onDragStart={isDraggable ? (e) => handleDragStart(e, card.id) : undefined}
         onClick={() => setSelectedCard(card)}
         style={{ 
-          background: '#ffffff', 
-          padding: '1rem', 
-          borderRadius: '8px', 
-          border: isPendiente ? '1px dashed #f59e0b' : '1px solid rgba(0,0,0,0.08)', 
+          background: '#151515', 
+          padding: '1.1rem', 
+          borderRadius: '10px', 
+          border: '1px solid rgba(255,255,255,0.08)', 
           cursor: 'pointer', 
           display: 'flex', 
           flexDirection: 'column', 
-          gap: '0.5rem', 
-          boxShadow: '0 2px 4px rgba(0,0,0,0.03)',
+          gap: '0.6rem', 
+          boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
           opacity: isDraggable ? 1 : 0.95,
-          transition: 'transform 0.15s, boxShadow 0.15s'
+          transition: 'all 0.2s ease'
         }}
-        onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-        onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+        onMouseOver={(e) => {
+          e.currentTarget.style.transform = 'translateY(-2px)';
+          e.currentTarget.style.borderColor = 'rgba(238, 223, 198, 0.4)';
+        }}
+        onMouseOut={(e) => {
+          e.currentTarget.style.transform = 'translateY(0)';
+          e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)';
+        }}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 600, color: '#18181b' }}>{card.cliente}</h4>
-          <span style={{ fontSize: '0.7rem', background: isPendiente ? '#fef3c7' : 'rgba(0,0,0,0.05)', padding: '0.1rem 0.4rem', borderRadius: '4px', color: isPendiente ? '#b45309' : '#71717a', fontWeight: isPendiente ? 700 : 400 }}>
-            {isPendiente ? 'COTIZAR' : `#${card.id.substring(0, 6)}`}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>
+          <h4 style={{ margin: 0, fontSize: '0.92rem', fontWeight: 600, color: '#ffffff', letterSpacing: '0.01em', fontFamily: 'var(--font-outfit), sans-serif' }}>{card.cliente}</h4>
+          <span style={{ fontSize: '0.65rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', padding: '0.2rem 0.5rem', borderRadius: '4px', color: isPendiente ? '#eedfc6' : '#a1a1aa', fontWeight: 600, letterSpacing: '0.05em' }}>
+            {isPendiente ? 'COTIZACIÓN' : `#${card.id.substring(0, 6)}`}
           </span>
         </div>
-        <p style={{ margin: 0, fontSize: '0.8rem', color: '#52525b', wordBreak: 'break-all' }}>{card.email}</p>
+        <p style={{ margin: 0, fontSize: '0.8rem', color: '#888888', wordBreak: 'break-all' }}>{card.email}</p>
         
         {card.articulos && card.articulos.length > 0 && (
-          <div style={{ fontSize: '0.75rem', color: '#71717a', background: '#f4f4f5', padding: '0.4rem 0.6rem', borderRadius: '4px', marginTop: '0.2rem' }}>
-            📦 {card.articulos.length} producto(s)
+          <div style={{ fontSize: '0.75rem', color: '#d4d4d8', background: 'rgba(255, 255, 255, 0.04)', border: '1px solid rgba(255, 255, 255, 0.08)', padding: '0.35rem 0.6rem', borderRadius: '6px', marginTop: '0.2rem' }}>
+            {card.articulos.length} {card.articulos.length === 1 ? 'producto' : 'productos'}
           </div>
         )}
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.4rem', paddingTop: '0.5rem', borderTop: '1px solid rgba(0,0,0,0.05)' }}>
-          <span style={{ fontSize: '0.7rem', color: '#a1a1aa' }}>{card.fecha}</span>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.2rem', paddingTop: '0.6rem', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+          <span style={{ fontSize: '0.7rem', color: '#666666' }}>{card.fecha}</span>
           {card.monto > 0 ? (
-            <span style={{ fontSize: '0.85rem', fontWeight: 700, color: card.estado === 'comprado' ? '#10b981' : '#d97706' }}>
+            <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#eedfc6' }}>
               ${card.monto.toLocaleString()} MXN
             </span>
           ) : (
-            <span style={{ fontSize: '0.75rem', fontStyle: 'italic', color: '#a1a1aa' }}>Lead 3D</span>
+            <span style={{ fontSize: '0.7rem', color: '#eedfc6', fontWeight: 600, letterSpacing: '0.05em' }}>LEAD 3D</span>
           )}
         </div>
       </div>
@@ -356,16 +375,23 @@ export default function CrmPage() {
   };
 
   return (
-    <div style={{ flex: 1, padding: '1.5rem 2rem', overflowX: 'auto', background: '#f8f9fa', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+    <div style={{ flex: 1, padding: '1.5rem 2rem', overflowX: 'auto', background: '#0b0b0b', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
       
       {/* Header bar with Refresh & Date Filters */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', background: '#ffffff', padding: '1rem 1.2rem', borderRadius: '10px', border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-          <h2 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 800 }}>Tablero de Pedidos CRM</h2>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', background: '#121212', padding: '1.2rem 1.5rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <div>
+            <span style={{ display: 'block', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#eedfc6', fontWeight: 700 }}>
+              ESTATUS EN TIEMPO REAL
+            </span>
+            <h2 className="font-bronco" style={{ margin: 0, fontSize: '1.6rem', letterSpacing: '0.04em', color: '#ffffff' }}>
+              TABLERO DE PEDIDOS CRM
+            </h2>
+          </div>
           <button 
             onClick={fetchPedidos} 
             disabled={refreshing}
-            style={{ background: '#f8f9fa', border: '1px solid rgba(0,0,0,0.1)', padding: '0.4rem 0.8rem', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem', fontWeight: 600 }}
+            style={{ background: '#1a1a1a', border: '1px solid rgba(255,255,255,0.12)', color: '#eedfc6', padding: '0.5rem 0.9rem', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', fontWeight: 700, transition: 'all 0.2s' }}
           >
             <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} />
             {refreshing ? 'Actualizando...' : 'Actualizar'}
@@ -374,23 +400,22 @@ export default function CrmPage() {
 
         {/* Date Filter Controls */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', flexWrap: 'wrap' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem', color: '#52525b', fontWeight: 600 }}>
-            <Calendar size={16} color="#18181b" />
-            <span>Filtro de Fechas:</span>
-          </div>
+          <span style={{ fontSize: '0.8rem', color: '#a1a1aa', fontWeight: 600 }}>
+            Filtro de Fechas:
+          </span>
 
-          <div style={{ display: 'flex', gap: '0.3rem', background: '#f1f3f5', padding: '0.2rem', borderRadius: '8px' }}>
+          <div style={{ display: 'flex', gap: '0.3rem', background: '#181818', padding: '0.25rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.08)' }}>
             <button
               onClick={() => setFilterPreset('5days')}
               style={{
-                padding: '0.35rem 0.75rem',
+                padding: '0.4rem 0.8rem',
                 fontSize: '0.78rem',
-                fontWeight: 600,
+                fontWeight: 700,
                 borderRadius: '6px',
                 border: 'none',
                 cursor: 'pointer',
-                background: filterPreset === '5days' ? '#18181b' : 'transparent',
-                color: filterPreset === '5days' ? '#ffffff' : '#52525b',
+                background: filterPreset === '5days' ? '#eedfc6' : 'transparent',
+                color: filterPreset === '5days' ? '#0b0b0b' : '#a1a1aa',
                 transition: 'all 0.15s'
               }}
             >
@@ -400,14 +425,14 @@ export default function CrmPage() {
             <button
               onClick={() => setFilterPreset('30days')}
               style={{
-                padding: '0.35rem 0.75rem',
+                padding: '0.4rem 0.8rem',
                 fontSize: '0.78rem',
-                fontWeight: 600,
+                fontWeight: 700,
                 borderRadius: '6px',
                 border: 'none',
                 cursor: 'pointer',
-                background: filterPreset === '30days' ? '#18181b' : 'transparent',
-                color: filterPreset === '30days' ? '#ffffff' : '#52525b',
+                background: filterPreset === '30days' ? '#eedfc6' : 'transparent',
+                color: filterPreset === '30days' ? '#0b0b0b' : '#a1a1aa',
                 transition: 'all 0.15s'
               }}
             >
@@ -417,14 +442,14 @@ export default function CrmPage() {
             <button
               onClick={() => setFilterPreset('all')}
               style={{
-                padding: '0.35rem 0.75rem',
+                padding: '0.4rem 0.8rem',
                 fontSize: '0.78rem',
-                fontWeight: 600,
+                fontWeight: 700,
                 borderRadius: '6px',
                 border: 'none',
                 cursor: 'pointer',
-                background: filterPreset === 'all' ? '#18181b' : 'transparent',
-                color: filterPreset === 'all' ? '#ffffff' : '#52525b',
+                background: filterPreset === 'all' ? '#eedfc6' : 'transparent',
+                color: filterPreset === 'all' ? '#0b0b0b' : '#a1a1aa',
                 transition: 'all 0.15s'
               }}
             >
@@ -434,14 +459,14 @@ export default function CrmPage() {
             <button
               onClick={() => setFilterPreset('custom')}
               style={{
-                padding: '0.35rem 0.75rem',
+                padding: '0.4rem 0.8rem',
                 fontSize: '0.78rem',
-                fontWeight: 600,
+                fontWeight: 700,
                 borderRadius: '6px',
                 border: 'none',
                 cursor: 'pointer',
-                background: filterPreset === 'custom' ? '#18181b' : 'transparent',
-                color: filterPreset === 'custom' ? '#ffffff' : '#52525b',
+                background: filterPreset === 'custom' ? '#eedfc6' : 'transparent',
+                color: filterPreset === 'custom' ? '#0b0b0b' : '#a1a1aa',
                 transition: 'all 0.15s'
               }}
             >
@@ -450,23 +475,23 @@ export default function CrmPage() {
           </div>
 
           {filterPreset === 'custom' && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#f8f9fa', padding: '0.3rem 0.6rem', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#181818', padding: '0.3rem 0.6rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                <span style={{ fontSize: '0.75rem', color: '#52525b', fontWeight: 600 }}>Inicio:</span>
+                <span style={{ fontSize: '0.75rem', color: '#a1a1aa', fontWeight: 600 }}>Inicio:</span>
                 <input 
                   type="date" 
                   value={startDate} 
                   onChange={(e) => setStartDate(e.target.value)}
-                  style={{ border: '1px solid rgba(0,0,0,0.15)', borderRadius: '4px', padding: '0.2rem 0.4rem', fontSize: '0.75rem', outline: 'none', color: '#18181b' }}
+                  style={{ border: '1px solid rgba(255,255,255,0.15)', background: '#121212', borderRadius: '4px', padding: '0.2rem 0.4rem', fontSize: '0.75rem', outline: 'none', color: '#ffffff' }}
                 />
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                <span style={{ fontSize: '0.75rem', color: '#52525b', fontWeight: 600 }}>Fin:</span>
+                <span style={{ fontSize: '0.75rem', color: '#a1a1aa', fontWeight: 600 }}>Fin:</span>
                 <input 
                   type="date" 
                   value={endDate} 
                   onChange={(e) => setEndDate(e.target.value)}
-                  style={{ border: '1px solid rgba(0,0,0,0.15)', borderRadius: '4px', padding: '0.2rem 0.4rem', fontSize: '0.75rem', outline: 'none', color: '#18181b' }}
+                  style={{ border: '1px solid rgba(255,255,255,0.15)', background: '#121212', borderRadius: '4px', padding: '0.2rem 0.4rem', fontSize: '0.75rem', outline: 'none', color: '#ffffff' }}
                 />
               </div>
             </div>
@@ -474,12 +499,12 @@ export default function CrmPage() {
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: '1.5rem', flex: 1, minWidth: '1100px' }}>
+      <div style={{ display: 'flex', gap: '1.25rem', flex: 1, minWidth: '1100px' }}>
         
         {/* Col 1: Prospecto */}
-        <div style={{ flex: 1, background: 'rgba(0,0,0,0.02)', borderRadius: '8px', display: 'flex', flexDirection: 'column' }}>
-          <ColumnHeader title="Prospecto 3D" count={prospectos.length} icon={<Users size={16} />} color="#60a5fa" />
-          <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem', overflowY: 'auto', flex: 1 }}>
+        <div style={{ flex: 1, background: '#101010', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.06)', display: 'flex', flexDirection: 'column' }}>
+          <ColumnHeader title="Prospecto 3D" count={prospectos.length} />
+          <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.8rem', overflowY: 'auto', flex: 1 }}>
             {prospectos.map(card => <KanbanCardItem key={card.id} card={card} />)}
           </div>
         </div>
@@ -491,16 +516,16 @@ export default function CrmPage() {
           onDrop={(e) => handleDrop(e, 'pendiente')}
           style={{ 
             flex: 1, 
-            background: dragOverColumn === 'pendiente' ? 'rgba(251, 191, 36, 0.12)' : 'rgba(0,0,0,0.02)', 
-            border: dragOverColumn === 'pendiente' ? '2px dashed #fbbf24' : '2px solid transparent',
-            borderRadius: '8px', 
+            background: dragOverColumn === 'pendiente' ? 'rgba(238, 223, 198, 0.05)' : '#101010', 
+            border: dragOverColumn === 'pendiente' ? '1px dashed #eedfc6' : '1px solid rgba(255,255,255,0.06)',
+            borderRadius: '10px', 
             display: 'flex', 
             flexDirection: 'column',
             transition: 'all 0.2s'
           }}
         >
-          <ColumnHeader title="Pendientes / Cotización" count={pendientes.length} icon={<ShoppingCart size={16} />} color="#fbbf24" />
-          <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem', overflowY: 'auto', flex: 1 }}>
+          <ColumnHeader title="Pendientes / Cotización" count={pendientes.length} />
+          <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.8rem', overflowY: 'auto', flex: 1 }}>
             {pendientes.map(card => <KanbanCardItem key={card.id} card={card} />)}
           </div>
         </div>
@@ -512,16 +537,16 @@ export default function CrmPage() {
           onDrop={(e) => handleDrop(e, 'comprado')}
           style={{ 
             flex: 1, 
-            background: dragOverColumn === 'comprado' ? 'rgba(16, 185, 129, 0.12)' : 'rgba(0,0,0,0.02)', 
-            border: dragOverColumn === 'comprado' ? '2px dashed #10b981' : '2px solid transparent',
-            borderRadius: '8px', 
+            background: dragOverColumn === 'comprado' ? 'rgba(238, 223, 198, 0.05)' : '#101010', 
+            border: dragOverColumn === 'comprado' ? '1px dashed #eedfc6' : '1px solid rgba(255,255,255,0.06)',
+            borderRadius: '10px', 
             display: 'flex', 
             flexDirection: 'column',
             transition: 'all 0.2s'
           }}
         >
-          <ColumnHeader title="Pagados y Finalizados" count={comprados.length} icon={<Package size={16} />} color="#10b981" />
-          <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem', overflowY: 'auto', flex: 1 }}>
+          <ColumnHeader title="Pagados y Finalizados" count={comprados.length} />
+          <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.8rem', overflowY: 'auto', flex: 1 }}>
             {comprados.map(card => <KanbanCardItem key={card.id} card={card} />)}
           </div>
         </div>
@@ -533,16 +558,16 @@ export default function CrmPage() {
           onDrop={(e) => handleDrop(e, 'entregado')}
           style={{ 
             flex: 1, 
-            background: dragOverColumn === 'entregado' ? 'rgba(99, 102, 241, 0.12)' : 'rgba(0,0,0,0.02)', 
-            border: dragOverColumn === 'entregado' ? '2px dashed #6366f1' : '2px solid transparent',
-            borderRadius: '8px', 
+            background: dragOverColumn === 'entregado' ? 'rgba(238, 223, 198, 0.05)' : '#101010', 
+            border: dragOverColumn === 'entregado' ? '1px dashed #eedfc6' : '1px solid rgba(255,255,255,0.06)',
+            borderRadius: '10px', 
             display: 'flex', 
             flexDirection: 'column',
             transition: 'all 0.2s'
           }}
         >
-          <ColumnHeader title="Entregados" count={entregados.length} icon={<Truck size={16} />} color="#6366f1" />
-          <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem', overflowY: 'auto', flex: 1 }}>
+          <ColumnHeader title="Entregados" count={entregados.length} />
+          <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.8rem', overflowY: 'auto', flex: 1 }}>
             {entregados.map(card => <KanbanCardItem key={card.id} card={card} />)}
           </div>
         </div>
@@ -551,78 +576,78 @@ export default function CrmPage() {
 
       {/* POPUP MODAL: DETALLES COMPLETOS DEL PEDIDO */}
       {selectedCard && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', backdropFilter: 'blur(3px)' }}>
-          <div style={{ background: '#ffffff', borderRadius: '16px', border: '1px solid rgba(0,0,0,0.1)', width: '100%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto', padding: '2rem', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', position: 'relative' }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', backdropFilter: 'blur(8px)' }}>
+          <div style={{ background: '#141414', color: '#ffffff', borderRadius: '18px', border: '1px solid rgba(255,255,255,0.12)', width: '100%', maxWidth: '620px', maxHeight: '90vh', overflowY: 'auto', padding: '2rem', boxShadow: '0 25px 60px rgba(0,0,0,0.9)', position: 'relative' }}>
             
             <button 
               onClick={() => setSelectedCard(null)} 
-              style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: '#f4f4f5', border: 'none', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#52525b' }}
+              style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: '#222222', border: 'none', borderRadius: '50%', width: 34, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#ffffff' }}
             >
               <X size={18} />
             </button>
 
-            <div style={{ borderBottom: '1px solid #f4f4f5', paddingBottom: '1rem', marginBottom: '1.5rem' }}>
+            <div style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '1rem', marginBottom: '1.5rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.4rem' }}>
-                <span style={{ fontSize: '0.75rem', fontWeight: 700, padding: '0.2rem 0.6rem', borderRadius: '12px', background: selectedCard.estado === 'prospecto' ? '#dbeafe' : selectedCard.estado === 'pendiente' ? '#fef3c7' : selectedCard.estado === 'comprado' ? '#d1fae5' : '#e0e7ff', color: selectedCard.estado === 'prospecto' ? '#1e40af' : selectedCard.estado === 'pendiente' ? '#92400e' : selectedCard.estado === 'comprado' ? '#065f46' : '#3730a3', textTransform: 'uppercase' }}>
+                <span style={{ fontSize: '0.7rem', fontWeight: 700, padding: '0.2rem 0.6rem', borderRadius: '12px', background: 'rgba(238, 223, 198, 0.1)', border: '1px solid rgba(238, 223, 198, 0.25)', color: '#eedfc6', textTransform: 'uppercase' }}>
                   {selectedCard.estado === 'pendiente' ? 'Pendiente / Cotización' : selectedCard.estado === 'comprado' ? 'Pagado y Finalizado' : selectedCard.estado}
                 </span>
-                <span style={{ fontSize: '0.85rem', color: '#71717a' }}>ID: #{selectedCard.id}</span>
+                <span style={{ fontSize: '0.8rem', color: '#71717a' }}>ID: #{selectedCard.id}</span>
               </div>
-              <h3 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 800 }}>
-                {selectedCard.estado === 'prospecto' ? 'Detalle de Prospección' : 'Detalle del Pedido'}
+              <h3 className="font-bronco" style={{ margin: 0, fontSize: '1.6rem', color: '#ffffff', letterSpacing: '0.04em' }}>
+                {selectedCard.estado === 'prospecto' ? 'DETALLE DE PROSPECCIÓN' : 'DETALLE DEL PEDIDO'}
               </h3>
-              <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.8rem', color: '#a1a1aa' }}>Fecha de registro: {selectedCard.fecha}</p>
+              <p style={{ margin: '0.3rem 0 0 0', fontSize: '0.8rem', color: '#a1a1aa' }}>Fecha de registro: {selectedCard.fecha}</p>
             </div>
 
             {/* Datos del Cliente */}
-            <div style={{ background: '#f8f9fa', borderRadius: '12px', padding: '1.2rem', marginBottom: '1.5rem', border: '1px solid #f1f5f9' }}>
-              <h4 style={{ margin: '0 0 1rem 0', fontSize: '0.95rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <User size={16} color="#18181b" /> Información del Cliente
+            <div style={{ background: '#1c1c1c', borderRadius: '12px', padding: '1.2rem', marginBottom: '1.5rem', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <h4 style={{ margin: '0 0 1rem 0', fontSize: '0.85rem', fontWeight: 700, color: '#eedfc6', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+                Información del Cliente
               </h4>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', fontSize: '0.85rem' }}>
                 <div>
-                  <span style={{ color: '#64748b', fontSize: '0.75rem', display: 'block' }}>Nombre Completo</span>
-                  <strong style={{ color: '#0f172a' }}>{selectedCard.cliente}</strong>
+                  <span style={{ color: '#71717a', fontSize: '0.75rem', display: 'block', textTransform: 'uppercase' }}>Nombre Completo</span>
+                  <strong style={{ color: '#ffffff' }}>{selectedCard.cliente}</strong>
                 </div>
                 <div>
-                  <span style={{ color: '#64748b', fontSize: '0.75rem', display: 'block' }}>Correo Electrónico</span>
-                  <strong style={{ color: '#0f172a', wordBreak: 'break-all' }}>{selectedCard.email}</strong>
+                  <span style={{ color: '#71717a', fontSize: '0.75rem', display: 'block', textTransform: 'uppercase' }}>Correo Electrónico</span>
+                  <strong style={{ color: '#ffffff', wordBreak: 'break-all' }}>{selectedCard.email}</strong>
                 </div>
                 <div>
-                  <span style={{ color: '#64748b', fontSize: '0.75rem', display: 'block' }}>Teléfono</span>
-                  <strong style={{ color: '#0f172a' }}>{selectedCard.telefono || 'N/A'}</strong>
+                  <span style={{ color: '#71717a', fontSize: '0.75rem', display: 'block', textTransform: 'uppercase' }}>Teléfono</span>
+                  <strong style={{ color: '#ffffff' }}>{selectedCard.telefono || 'N/A'}</strong>
                 </div>
                 <div>
-                  <span style={{ color: '#64748b', fontSize: '0.75rem', display: 'block' }}>Dirección de Envío</span>
-                  <strong style={{ color: '#0f172a' }}>{selectedCard.direccion || 'N/A'}{selectedCard.geographicState ? `, ${selectedCard.geographicState}` : ''}</strong>
+                  <span style={{ color: '#71717a', fontSize: '0.75rem', display: 'block', textTransform: 'uppercase' }}>Dirección de Envío</span>
+                  <strong style={{ color: '#ffffff' }}>{selectedCard.direccion || 'N/A'}{selectedCard.geographicState ? `, ${selectedCard.geographicState}` : ''}</strong>
                 </div>
               </div>
             </div>
 
             {/* Archivos / Diseños Subidos */}
-            <div style={{ marginBottom: '1.5rem', background: '#f8fafc', padding: '1rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-              <h4 style={{ margin: '0 0 0.8rem 0', fontSize: '0.95rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#0f172a' }}>
-                <FileText size={16} color="#18181b" /> Diseños / Archivos Adjuntos
+            <div style={{ marginBottom: '1.5rem', background: '#1c1c1c', padding: '1.2rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <h4 style={{ margin: '0 0 0.8rem 0', fontSize: '0.85rem', fontWeight: 700, color: '#eedfc6', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+                Diseños / Archivos Adjuntos
               </h4>
               {selectedCard.archivos && Object.keys(selectedCard.archivos).length > 0 ? (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))', gap: '0.8rem' }}>
                   {Object.entries(selectedCard.archivos).map(([key, url]) => (
-                    <div key={key} style={{ border: '1px solid #cbd5e1', borderRadius: '6px', padding: '0.5rem', background: '#ffffff', textAlign: 'center' }}>
-                      <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: '0.3rem' }}>
+                    <div key={key} style={{ border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '0.5rem', background: '#141414', textAlign: 'center' }}>
+                      <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#a1a1aa', textTransform: 'uppercase', display: 'block', marginBottom: '0.3rem' }}>
                         {key}
                       </span>
                       <img 
                         src={url} 
                         alt={key} 
                         onClick={() => setExpandedImage(url)}
-                        style={{ width: '100%', height: '80px', objectFit: 'contain', cursor: 'pointer', borderRadius: '4px', border: '1px dashed #e2e8f0', background: '#000000' }} 
+                        style={{ width: '100%', height: '80px', objectFit: 'contain', cursor: 'pointer', borderRadius: '4px', border: '1px dashed rgba(255,255,255,0.2)', background: '#000000' }} 
                         title="Haz clic para expandir"
                       />
                     </div>
                   ))}
                 </div>
               ) : (
-                <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b', fontStyle: 'italic' }}>
+                <p style={{ margin: 0, fontSize: '0.85rem', color: '#71717a', fontStyle: 'italic' }}>
                   No se han adjuntado imágenes o diseños para este registro.
                 </p>
               )}
@@ -631,24 +656,24 @@ export default function CrmPage() {
             {/* Lista de Artículos */}
             {selectedCard.articulos && selectedCard.articulos.length > 0 && (
               <div style={{ marginBottom: '1.5rem' }}>
-                <h4 style={{ margin: '0 0 0.8rem 0', fontSize: '0.95rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <FileText size={16} color="#18181b" /> Productos Solicitados
+                <h4 style={{ margin: '0 0 0.8rem 0', fontSize: '0.85rem', fontWeight: 700, color: '#eedfc6', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+                  Productos Solicitados
                 </h4>
-                <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden' }}>
+                <div style={{ border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', overflow: 'hidden' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
                     <thead>
-                      <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
-                        <th style={{ padding: '0.6rem 0.8rem', color: '#64748b' }}>Cant.</th>
-                        <th style={{ padding: '0.6rem 0.8rem', color: '#64748b' }}>Producto</th>
-                        <th style={{ padding: '0.6rem 0.8rem', color: '#64748b', textAlign: 'right' }}>Total</th>
+                      <tr style={{ background: '#1c1c1c', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+                        <th style={{ padding: '0.6rem 0.8rem', color: '#a1a1aa' }}>Cant.</th>
+                        <th style={{ padding: '0.6rem 0.8rem', color: '#a1a1aa' }}>Producto</th>
+                        <th style={{ padding: '0.6rem 0.8rem', color: '#a1a1aa', textAlign: 'right' }}>Total</th>
                       </tr>
                     </thead>
                     <tbody>
                       {selectedCard.articulos.map((item, index) => (
-                        <tr key={index} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                          <td style={{ padding: '0.6rem 0.8rem', fontWeight: 600 }}>{item.cantidad}x</td>
-                          <td style={{ padding: '0.6rem 0.8rem' }}>{item.nombre}</td>
-                          <td style={{ padding: '0.6rem 0.8rem', textAlign: 'right', fontWeight: 600 }}>
+                        <tr key={index} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                          <td style={{ padding: '0.6rem 0.8rem', fontWeight: 600, color: '#eedfc6' }}>{item.cantidad}x</td>
+                          <td style={{ padding: '0.6rem 0.8rem', color: '#ffffff' }}>{item.nombre}</td>
+                          <td style={{ padding: '0.6rem 0.8rem', textAlign: 'right', fontWeight: 700, color: '#ffffff' }}>
                             ${item.total ? item.total.toLocaleString() : '0'} MXN
                           </td>
                         </tr>
@@ -661,14 +686,15 @@ export default function CrmPage() {
 
             {/* Acciones para Pedidos Pendientes de Cotización */}
             {selectedCard.estado === 'pendiente' && (
-              <div style={{ background: '#fffbebfb', padding: '1rem', borderRadius: '8px', border: '1px solid #fcd34d', marginBottom: '1.5rem' }}>
-                <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.95rem', color: '#92400e', fontWeight: 700 }}>Gestión de Presupuesto y Cotización</h4>
-                <p style={{ margin: '0 0 1rem 0', fontSize: '0.8rem', color: '#78350f' }}>
-                  Este pedido fue registrado con diseño personalizado. Al concretar la propuesta con el cliente, genera su link de pago o márcalo como pagado.
+              <div style={{ background: '#181818', padding: '1rem', borderRadius: '10px', border: '1px solid rgba(238, 223, 198, 0.25)', marginBottom: '1.5rem' }}>
+                <h4 style={{ margin: '0 0 0.4rem 0', fontSize: '0.9rem', color: '#eedfc6', fontWeight: 700 }}>Gestión de Presupuesto y Cotización</h4>
+                <p style={{ margin: '0 0 1rem 0', fontSize: '0.8rem', color: '#a1a1aa', lineHeight: 1.4 }}>
+                  Este pedido fue registrado con diseño personalizado. Al concretar la propuesta con el cliente, márcalo como pagado para iniciar la producción.
                 </p>
                 <button 
                   onClick={() => handleMarkAsPaid(selectedCard.id)}
-                  style={{ width: '100%', padding: '0.8rem', background: '#10b981', color: '#ffffff', border: 'none', borderRadius: '6px', fontWeight: 700, cursor: 'pointer', fontSize: '0.9rem' }}
+                  className="font-bronco"
+                  style={{ width: '100%', padding: '0.8rem', background: '#eedfc6', color: '#0b0b0b', border: 'none', borderRadius: '8px', fontWeight: 800, cursor: 'pointer', fontSize: '1rem', letterSpacing: '0.04em' }}
                 >
                   ✓ Marcar como Pagado
                 </button>
@@ -677,22 +703,22 @@ export default function CrmPage() {
 
             {/* Monto Total */}
             {selectedCard.monto > 0 && (
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', background: selectedCard.estado === 'comprado' ? '#ecfdf5' : '#f8f9fa', borderRadius: '8px', border: selectedCard.estado === 'comprado' ? '1px solid #a7f3d0' : '1px solid #e2e8f0' }}>
-                <span style={{ fontWeight: 600, color: selectedCard.estado === 'comprado' ? '#065f46' : '#18181b' }}>Monto Total Registrado:</span>
-                <span style={{ fontSize: '1.2rem', fontWeight: 800, color: selectedCard.estado === 'comprado' ? '#047857' : '#18181b' }}>${selectedCard.monto.toLocaleString()} MXN</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', background: '#1c1c1c', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.08)' }}>
+                <span style={{ fontWeight: 600, color: '#a1a1aa' }}>Monto Total Registrado:</span>
+                <span className="font-bronco" style={{ fontSize: '1.3rem', color: '#eedfc6' }}>${selectedCard.monto.toLocaleString()} MXN</span>
               </div>
             )}
 
             <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <button 
                 onClick={() => handleDeleteCard(selectedCard.id, selectedCard.estado)} 
-                style={{ padding: '0.7rem 1.5rem', background: '#fee2e2', color: '#ef4444', border: '1px solid #fca5a5', borderRadius: '8px', fontWeight: 600, cursor: 'pointer' }}
+                style={{ padding: '0.7rem 1.4rem', background: 'rgba(239, 68, 68, 0.15)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '8px', fontWeight: 600, cursor: 'pointer', fontSize: '0.85rem' }}
               >
                 Eliminar Registro
               </button>
               <button 
                 onClick={() => setSelectedCard(null)} 
-                style={{ padding: '0.7rem 1.5rem', background: '#18181b', color: '#ffffff', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: 'pointer' }}
+                style={{ padding: '0.7rem 1.6rem', background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', color: '#ffffff', borderRadius: '8px', fontWeight: 600, cursor: 'pointer', fontSize: '0.85rem' }}
               >
                 Cerrar Ventana
               </button>

@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Loader2, Plus, Trash2, Edit2, ChevronLeft, Upload, Check } from 'lucide-react';
+import { Loader2, Plus, Trash2, Edit2, ChevronLeft, Upload, Check, Search, X } from 'lucide-react';
 import styles from './CatalogoManager.module.css';
 
 interface DescuentoVolumen {
@@ -26,6 +26,7 @@ interface CatalogoManagerProps {
 export function CatalogoManager({ onSelectProduct }: CatalogoManagerProps) {
   const [productos, setProductos] = useState<Producto[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProdId, setEditingProdId] = useState<string | null>(null);
@@ -161,46 +162,119 @@ export function CatalogoManager({ onSelectProduct }: CatalogoManagerProps) {
     }
   };
 
+  const filteredProductos = useMemo(() => {
+    const q = searchQuery.toLowerCase().trim();
+    if (!q) return productos;
+    return productos.filter(p => {
+      const nameMatch = (p.nombre || '').toLowerCase().includes(q);
+      const descMatch = (p.mini_descripcion || '').toLowerCase().includes(q);
+      return nameMatch || descMatch;
+    });
+  }, [productos, searchQuery]);
+
   if (loading) {
     return (
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8f9fa' }}>
-        <Loader2 size={32} className="animate-spin" color="#18181b" />
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0b0b0b', minHeight: onSelectProduct ? '260px' : '60vh' }}>
+        <Loader2 size={32} className="animate-spin" color="#eedfc6" />
       </div>
     );
   }
 
   return (
-    <div className={styles.container}>
-      <div className={styles.productList}>
-        {productos.map(prod => (
-          <div key={prod.id} className={styles.productCard}>
-            <div 
-              className={styles.productInfo} 
-              onClick={() => onSelectProduct && onSelectProduct(prod)}
-              style={{ cursor: onSelectProduct ? 'pointer' : 'default' }}
-            >
-              <h3 className={styles.productTitle}>{prod.nombre}</h3>
-              <p className={styles.productDetail}>Precio Base: ${(prod.precio_base || 0).toFixed(2)}</p>
-              <p className={styles.productDetail}>Desc: {prod.mini_descripcion}</p>
-              {prod.descuentos_por_volumen && prod.descuentos_por_volumen.length > 0 && (
-                <p className={styles.productDetailLight}>
-                  Niveles de descuento: {prod.descuentos_por_volumen.length}
-                </p>
-              )}
-            </div>
-            <div className={styles.cardActions}>
-              <button className={styles.iconBtn} onClick={() => handleEditClick(prod)}>
-                <Edit2 size={18} className={styles.editIcon} />
-              </button>
-              <button className={styles.iconBtn} onClick={() => handleDelete(prod.id)}>
-                <Trash2 size={18} className={styles.deleteIcon} />
-              </button>
-            </div>
-          </div>
-        ))}
+    <div className={styles.container} style={onSelectProduct ? { minHeight: 'auto', padding: '0.5rem 0.25rem', background: 'transparent' } : undefined}>
+      
+      {/* Buscador de Productos Mayoristas */}
+      <div style={{ marginBottom: '1.25rem', position: 'relative', width: '100%', maxWidth: onSelectProduct ? '100%' : '850px', margin: onSelectProduct ? '0 0 1.25rem 0' : '0 auto 1.5rem auto' }}>
+        <Search size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#eedfc6', pointerEvents: 'none' }} />
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Buscar producto por nombre o descripción..."
+          style={{
+            width: '100%',
+            padding: '0.85rem 2.5rem 0.85rem 2.6rem',
+            background: '#161616',
+            border: '1px solid rgba(255, 255, 255, 0.12)',
+            borderRadius: '10px',
+            color: '#ffffff',
+            fontSize: '0.9rem',
+            outline: 'none',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+            fontFamily: 'inherit'
+          }}
+          onFocus={(e) => e.target.style.borderColor = '#eedfc6'}
+          onBlur={(e) => e.target.style.borderColor = 'rgba(255, 255, 255, 0.12)'}
+        />
+        {searchQuery && (
+          <button
+            type="button"
+            onClick={() => setSearchQuery('')}
+            style={{
+              position: 'absolute',
+              right: '12px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              background: 'none',
+              border: 'none',
+              color: '#a1a1aa',
+              cursor: 'pointer',
+              padding: '4px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            <X size={16} />
+          </button>
+        )}
       </div>
 
-      <button className={styles.fab} onClick={handleCreateClick}>
+      <div className={styles.productList}>
+        {filteredProductos.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '3rem 1.5rem', background: '#141414', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.08)', color: '#a1a1aa' }}>
+            <p style={{ margin: 0, fontSize: '0.95rem' }}>
+              {searchQuery ? `No se encontraron productos con "${searchQuery}"` : 'No hay productos disponibles en el catálogo.'}
+            </p>
+          </div>
+        ) : (
+          filteredProductos.map(prod => (
+            <div key={prod.id} className={styles.productCard}>
+              <div 
+                className={styles.productInfo} 
+                onClick={() => onSelectProduct && onSelectProduct(prod)}
+                style={{ cursor: onSelectProduct ? 'pointer' : 'default' }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', marginBottom: '0.3rem' }}>
+                  <h3 className={styles.productTitle}>{prod.nombre}</h3>
+                  {onSelectProduct && (
+                    <span style={{ fontSize: '0.72rem', background: 'rgba(238, 223, 198, 0.1)', color: '#eedfc6', padding: '0.2rem 0.6rem', borderRadius: '4px', border: '1px solid rgba(238, 223, 198, 0.25)', fontWeight: 700, letterSpacing: '0.04em', whiteSpace: 'nowrap' }}>
+                      + Agregar
+                    </span>
+                  )}
+                </div>
+                <p className={styles.productDetail}>Precio Base: ${(prod.precio_base || 0).toFixed(2)}</p>
+                <p className={styles.productDetailLight}>{prod.mini_descripcion}</p>
+                {prod.descuentos_por_volumen && prod.descuentos_por_volumen.length > 0 && (
+                  <p className={styles.productDetailLight} style={{ marginTop: '0.25rem', color: '#71717a' }}>
+                    Niveles de descuento: {prod.descuentos_por_volumen.length}
+                  </p>
+                )}
+              </div>
+              <div className={styles.cardActions}>
+                <button className={styles.iconBtn} onClick={() => handleEditClick(prod)} title="Editar producto">
+                  <Edit2 size={16} className={styles.editIcon} />
+                </button>
+                <button className={styles.iconBtn} onClick={() => handleDelete(prod.id)} title="Eliminar producto">
+                  <Trash2 size={16} className={styles.deleteIcon} />
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      <button className={styles.fab} onClick={handleCreateClick} title="Crear nuevo producto mayorista">
         <Plus size={28} />
       </button>
 
@@ -223,16 +297,16 @@ export function CatalogoManager({ onSelectProduct }: CatalogoManagerProps) {
                 <div className={styles.inputGroup}>
                   <span className={styles.floatingLabel}>Imagen de Presentación</span>
                   {!imagenPreview ? (
-                    <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '1.5rem', border: '1px dashed rgba(0,0,0,0.2)', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s', background: '#ffffff', marginTop: '0.5rem' }}>
+                    <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '1.5rem', border: '1px dashed rgba(238, 223, 198, 0.3)', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s', background: '#161616', marginTop: '0.5rem' }}>
                       <input type="file" accept="image/png, image/jpeg, image/webp" style={{ display: 'none' }} onChange={handleImageUpload} />
-                      <Upload size={20} style={{ color: '#52525b', marginBottom: '0.5rem' }} />
-                      <span style={{ fontSize: '0.85rem', color: '#52525b', fontWeight: 500 }}>Subir imagen (1:1 Recomendado)</span>
+                      <Upload size={20} style={{ color: '#eedfc6', marginBottom: '0.5rem' }} />
+                      <span style={{ fontSize: '0.85rem', color: '#a1a1aa', fontWeight: 500 }}>Subir imagen (1:1 Recomendado)</span>
                     </label>
                   ) : (
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', background: 'rgba(212, 175, 55, 0.05)', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(212, 175, 55, 0.3)', marginTop: '0.5rem' }}>
-                      <div style={{ width: '120px', height: '120px', borderRadius: '8px', overflow: 'hidden', backgroundImage: `url(${imagenPreview})`, backgroundSize: 'cover', backgroundPosition: 'center', border: '1px solid rgba(0,0,0,0.1)' }} />
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', background: 'rgba(238, 223, 198, 0.05)', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(238, 223, 198, 0.3)', marginTop: '0.5rem' }}>
+                      <div style={{ width: '120px', height: '120px', borderRadius: '8px', overflow: 'hidden', backgroundImage: `url(${imagenPreview})`, backgroundSize: 'cover', backgroundPosition: 'center', border: '1px solid rgba(255,255,255,0.1)' }} />
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', marginTop: '0.5rem', padding: '0 0.5rem' }}>
-                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', fontSize: '0.75rem', color: '#10b981', fontWeight: 600 }}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', fontSize: '0.75rem', color: '#eedfc6', fontWeight: 600 }}>
                           <Check size={14} /> Imagen Lista
                         </span>
                         <label style={{ color: '#ef4444', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, textDecoration: 'underline' }}>

@@ -14,8 +14,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: true, message: 'Resend API key no configurada (Modo desarrollo)' });
     }
 
-    const recipientEmail = to || 'onboarding@resend.dev';
-    const ownerEmail = process.env.OWNER_EMAIL || 'admin@demoomar.com';
+    const recipientEmail = to || 'admin@omarstudio.com.mx';
+    const ownerEmail = process.env.OWNER_EMAIL || 'admin@omarstudio.com.mx';
 
     // Enviar al cliente
     const customerEmailResponse = await resend.emails.send({

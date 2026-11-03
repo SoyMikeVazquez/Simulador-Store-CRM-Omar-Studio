@@ -128,17 +128,43 @@ export async function sendUserRegistrationOwnerNotification({
       htmlContent
     };
 
-    const { data, error } = await supabase.functions.invoke('send-email', {
-      body: payload
-    });
-
-    if (error) {
-      console.warn('[Resend via Edge Function] Error al enviar correo al propietario:', error);
-      return { success: false, error };
+    let sendError = null;
+    try {
+      const { data, error } = await supabase.functions.invoke('send-email', {
+        body: payload
+      });
+      if (!error && data) {
+        console.log('[Resend via Edge Function] Correo enviado exitosamente al propietario:', data);
+        return { success: true, data };
+      }
+      sendError = error;
+    } catch (edgeErr) {
+      sendError = edgeErr;
     }
 
-    console.log('[Resend via Edge Function] Correo enviado exitosamente al propietario:', data);
-    return { success: true, data };
+    if (sendError) {
+      console.warn('[Resend via Edge Function] Intentando fallback por API interna:', sendError);
+      try {
+        const localRes = await fetch('/api/send-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            to: OWNER_EMAILS[0] || 'admin@omarstudio.com.mx',
+            customerName: userName,
+            subject: `[Omar Labs Studio] ${isOrder ? 'Nuevo Pedido' : 'Nuevo Registro'} - ${userName}`,
+            html: htmlContent,
+            isCustomDesign: source.toLowerCase().includes('personalizado')
+          })
+        });
+        const localData = await localRes.json();
+        return localData;
+      } catch (localErr) {
+        console.warn('[Resend API Local Fallback] Error:', localErr);
+        return { success: false, error: sendError };
+      }
+    }
+
+    return { success: true };
   } catch (error: any) {
     console.error('[Resend Direct Fetch] Excepción al enviar correo:', error);
     return { success: false, error: error?.message || error };
@@ -210,16 +236,41 @@ export async function sendOrderConfirmationToClient({
       htmlContent
     };
 
-    const { data, error } = await supabase.functions.invoke('send-email', {
-      body: payload
-    });
-
-    if (error) {
-      console.warn('[Resend Client] Error al enviar correo al cliente:', error);
-      return { success: false, error };
+    let clientSendError = null;
+    try {
+      const { data, error } = await supabase.functions.invoke('send-email', {
+        body: payload
+      });
+      if (!error && data) {
+        return { success: true, data };
+      }
+      clientSendError = error;
+    } catch (edgeErr) {
+      clientSendError = edgeErr;
     }
 
-    return { success: true, data };
+    if (clientSendError) {
+      console.warn('[Resend Client] Intentando fallback por API interna:', clientSendError);
+      try {
+        const localRes = await fetch('/api/send-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            to: userEmail,
+            customerName: userName,
+            subject: 'Confirmación de Pedido - Omar Labs Studio',
+            html: htmlContent
+          })
+        });
+        const localData = await localRes.json();
+        return localData;
+      } catch (localErr) {
+        console.warn('[Resend Client API Local Fallback] Error:', localErr);
+        return { success: false, error: clientSendError };
+      }
+    }
+
+    return { success: true };
   } catch (error: any) {
     console.error('[Resend Client] Excepción:', error);
     return { success: false, error: error?.message || error };
